@@ -34,9 +34,9 @@ const procesar = (items) => {
 
   console.log(monkeys);
 
-  for (let i = 0; i < 600; i++) {
+  for (let i = 0; i < 10000; i++) {
     console.log("RONDA:", i);
-    ronda(monkeys);
+    ronda(i, monkeys);
   }
 
   const inspections = monkeys.map((monkey) => monkey.inspects);
@@ -107,11 +107,11 @@ const buildMonkeys = (items) => {
   return monkeys;
 };
 
-const ronda = (monkeys) => {
-  monkeys.forEach((monkey) => {
+const ronda = (iteracion, monkeys) => {
+  monkeys.forEach((monkey, idx) => {
     //console.log(monkey.items);
 
-    monkey.items.forEach((old) => {
+    monkey.items.forEach((old, idx2) => {
       let nuevo = BigInt(0);
       //console.log("Tipo OLD", typeof old);
       //console.log("Tipo nuevo", typeof nuevo);
@@ -129,7 +129,7 @@ const ronda = (monkeys) => {
       monkeys[mono].items.push(final);
       monkey.inspects++;
 
-      //console.log(old, nuevo, final, mono, monkey.inspects);
+      console.log("Ronda ", iteracion, " Mono ", idx, " item ", idx2);
     });
 
     monkey.items = [];
