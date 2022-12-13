@@ -28,9 +28,15 @@ r1.on("close", function () {
 // Day 10
 // ********************************************************
 const newCRT = [];
+let modulo = 1n;
 
 const procesar = (items) => {
   const monkeys = buildMonkeys(items);
+
+  modulo = monkeys.reduce((acc, curr) => {
+    console.log("REDUCE ", acc, curr);
+    return acc * curr.test;
+  }, 1n);
 
   console.log(monkeys);
 
@@ -53,6 +59,7 @@ const buildMonkeys = (items) => {
   const monkey = {
     items: [],
     operation: "",
+    operand: 0,
     test: 0,
     true: 0,
     false: 0,
@@ -65,8 +72,6 @@ const buildMonkeys = (items) => {
       element.substring(0, element.length - 1);
       const partes = element.split(" ");
       lastMonkey = parseInt(partes[1]);
-
-      //console.log("Monkey:", lastMonkey);
     }
 
     if (element.includes("Starting")) {
@@ -76,9 +81,10 @@ const buildMonkeys = (items) => {
     }
 
     if (element.includes("Operation")) {
-      const partes = element.split(": ");
-      const calculo = partes[1].replace("new", "nuevo");
-      monkey.operation = arreglarCalculo(calculo);
+      const partes = element.split(" ");
+      monkey.operation = partes[partes.length - 2];
+      const operand = partes[partes.length - 1];
+      monkey.operand = operand == "old" ? "old" : BigInt(operand);
     }
 
     if (element.includes("Test")) {
@@ -99,8 +105,6 @@ const buildMonkeys = (items) => {
     if (element == "") {
       const myMonkey = { ...monkey };
       monkeys.push(myMonkey);
-
-      //console.log(monkey);
     }
   });
 
@@ -109,30 +113,45 @@ const buildMonkeys = (items) => {
 
 const ronda = (iteracion, monkeys) => {
   monkeys.forEach((monkey, idx) => {
-    //console.log(monkey.items);
-
     monkey.items.forEach((old, idx2) => {
+      console.log("OPERACION ", monkey.operation, monkey.operand);
+
       let nuevo = BigInt(0);
-      //console.log("Tipo OLD", typeof old);
-      //console.log("Tipo nuevo", typeof nuevo);
-      eval(monkey.operation);
 
-      const final = nuevo;
+      //console.log("P1 ");
+      let operando = 0;
+      if (monkey.operand == "old") {
+        operando = old;
+      } else {
+        operando = monkey.operand;
+      }
 
-      //   const mono =
-      //     final / monkey.test == Math.floor(final / monkey.test)
-      //       ? monkey.true
-      //       : monkey.false;
+      //console.log("OLD", old);
+      //console.log("NEW", operando);
 
-      const mono = final % monkey.test == 0n ? monkey.true : monkey.false;
+      if (monkey.operation == "+") {
+        nuevo = old + operando;
+      }
+      if (monkey.operation == "*") {
+        nuevo = old * operando;
+      }
 
-      monkeys[mono].items.push(final);
+      //console.log("DIVISIBLE ");
+
+      nuevo = nuevo % modulo;
+
+      const mono = nuevo % monkey.test == 0n ? monkey.true : monkey.false;
+
+      //console.log("PUSH ");
+
+      monkeys[mono].items.push(nuevo);
       monkey.inspects++;
 
       console.log("Ronda ", iteracion, " Mono ", idx, " item ", idx2);
     });
 
-    monkey.items = [];
+    //monkey.items = [];
+    monkey.items.splice(0, monkey.items.length);
   });
 };
 
